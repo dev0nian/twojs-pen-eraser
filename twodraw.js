@@ -18,7 +18,7 @@ window.onload = function() {
   elem.addEventListener('mousedown', onTouchDown);
   elem.addEventListener('mousemove', onTouchUpdate);
   elem.addEventListener('mouseup', onTouchUp);
-  let params = {width: 800, height: 600};
+  let params = {width: 1200, height: 675};
   two = new Two(params).appendTo(elem);
 
   rect = elem.getBoundingClientRect();
@@ -53,12 +53,26 @@ function onTouchUpdate(event) {
     }
   }
   else if(mode == Mode.ERASER) {
-    for(let i = allStrokes.length - 1; i >= 0; --i) {
+    let boundsColliding = [];
+    for(let i = 0; i < allStrokes.length; ++i) {
       let stroke = allStrokes[i];
       if(pointInRectangle(curPoint, stroke.bounds)) {
-        two.remove(stroke.path);
-        two.remove(stroke.bounds);
-        allStrokes.splice(i, 1);
+        //removeStrokeFromScene(stroke, i);
+        boundsColliding.push(i);
+      }
+    }
+    for(let i = boundsColliding.length - 1; i >= 0; --i) {
+      let stroke = allStrokes[boundsColliding[i]];
+      let strokeVerts = stroke.path.vertices;
+      for(let j = 1; j < strokeVerts.length; ++j) {
+        let a = strokeVerts[j - 1];
+        let b = strokeVerts[j];
+        let c = curPoint;
+        let d = eraserPrevPoint;
+        if(isIntersecting(a, b, c, d)) {
+          removeStrokeFromScene(stroke, boundsColliding[i]);
+          break;
+        }
       }
     }
     eraserPrevPoint = curPoint;
@@ -109,6 +123,12 @@ function setMode(inMode) {
   mode = inMode;
 }
 
+function removeStrokeFromScene(inStroke, inIndex) {
+  two.remove(inStroke.path);
+  two.remove(inStroke.bounds);
+  allStrokes.splice(inIndex, 1);
+}
+
 function pointInRectangle(inPoint, inRect) {
   let left = inRect.translation.x - inRect.width * 0.5;
   let top = inRect.translation.y - inRect.height * 0.5;
@@ -120,4 +140,16 @@ function pointInRectangle(inPoint, inRect) {
     return false;
   }
   return true;
+}
+
+/* Check if points (Two.Vectors) are counterclock wise */
+function isCCW(inA, inB, inC) {
+  return (inC.y - inA.y) * (inB.x - inA.x) > (inB.y - inA.y) * (inC.x - inA.x)
+}
+
+/* Check if line segments intersect */
+function isIntersecting(inA, inB, inC, inD) {
+  let check1 = isCCW(inA, inC, inD) != isCCW(inB, inC, inD);
+  let check2 = isCCW(inA, inB, inC) != isCCW(inA, inB, inD);
+  return check1 && check2;
 }
