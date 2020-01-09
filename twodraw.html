@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8">
+  <head>
+    <title>Draw and erase</title>
+    <script type="text/javascript" src="./two.js"></script>
+    <script type="text/javascript" src="./twodraw.js"></script>
+    <style>
+     #draw svg {
+       border: 1px dashed gray;
+     }
+     .centered {
+       display: flex;
+       align-content: center;
+       justify-content: center;
+     }
+    </style>
+  </head>
+  <body>
+    <div id="draw-container" class="centered">
+      <div id="draw">
+      </div>
+    </div>
+    <div id="button-container" class="centered">
+      <button onclick="setMode(Mode.PEN)">Pen</button>
+      <button onclick="setMode(Mode.ERASER)">Eraser</button>
+    </div>
+  </body>
+</html>
