@@ -7,6 +7,7 @@ let eraserPrevPoint;
 let curStroke;
 let allStrokes = [];
 let mode = Mode.PEN;
+let showBounds = false;
 
 function Stroke() {
   this.path = null;
@@ -87,6 +88,9 @@ function onTouchUp(event) {
     if(curStroke) {
       curStroke.path.vertices.push(new Two.Vector(x, y));
       curStroke.bounds = getBoundingRect(curStroke);
+      if(!showBounds) {
+        curStroke.bounds.visible = false;
+      }
       two.add(curStroke.bounds);
       allStrokes.push(curStroke);
       curStroke = null;
